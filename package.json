@@ -1,0 +1,22 @@
+{
+  "name": "homebridge-dell-projector-plugin",
+  "version": "1.0.0",
+  "description": "Homebridge plugin for Dell Projector S718QL",
+  "main": "index.js",
+  "author": "Nick Small",
+  "license": "MIT",
+  "keywords": [
+    "homebridge-plugin"
+  ],
+  "engines": {
+    "homebridge": ">=0.2.0"
+  },
+  "dependencies": {
+    "net-snmp": "^1.2.4",
+    "typescript": "^2.9.2"
+  },
+  "scripts": {
+    "start": "tsc",
+    "test": "tsc && yarn global add && homebridge"
+  }
+}
