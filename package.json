@@ -16,7 +16,8 @@
     "typescript": "^2.9.2"
   },
   "scripts": {
-    "start": "tsc",
-    "test": "tsc && yarn global add && homebridge"
+    "build": "tsc",
+    "install": "yarn run build && yarn global add",
+    "run": "yarn run install && homebridge"
   }
 }
