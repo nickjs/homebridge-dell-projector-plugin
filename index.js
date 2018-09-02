@@ -1,12 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 const snmp = require("net-snmp");
 var OID;
 (function (OID) {
@@ -29,6 +21,7 @@ var InputSource;
     InputSource[InputSource["HDMI2"] = 14] = "HDMI2";
     InputSource[InputSource["HDMI3"] = 17] = "HDMI3";
 })(InputSource || (InputSource = {}));
+const ON_STATES = [PowerState.On, PowerState.Warming];
 let Service, Characteristic;
 class Projector {
     constructor(log, config) {
@@ -50,62 +43,55 @@ class Projector {
         this.powerService = powerService;
         return [informationService, powerService];
     }
-    getPowerState(next) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const state = yield this.getSnmp(OID.PowerState);
-                this.log('Power State', state);
-                next(null, state == PowerState.On ? true : false);
-            }
-            catch (error) {
-                this.log('SNMP Get Error', error);
-                next(error);
-            }
-        });
+    async getPowerState(next) {
+        try {
+            const powerState = await this.getSnmp(OID.PowerState);
+            this.log('Power State', powerState);
+            next(null, ON_STATES.includes(Number(powerState)) ? true : false);
+        }
+        catch (error) {
+            this.log('SNMP Get Error', error);
+            next(error);
+        }
     }
-    setPowerState(on, next) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const state = yield this.sendSnmp(OID.PowerState, on ? PowerState.On : PowerState.Off);
-                this.log('Set Power State', state);
-                next(null, state == PowerState.On ? true : false);
-            }
-            catch (error) {
-                this.log('SNMP Set Error', error);
-                next(error);
-            }
-        });
+    async setPowerState(on, next) {
+        const nextPowerState = on ? PowerState.On : PowerState.Off;
+        try {
+            const powerState = await this.sendSnmp(OID.PowerState, nextPowerState);
+            this.log('Set Power State', nextPowerState, 'current:', powerState);
+            next();
+        }
+        catch (error) {
+            this.log('SNMP Set Error', error);
+            next(error);
+        }
     }
-    getSnmp(oid) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
-                this.session.get([oid], (error, varbinds) => {
-                    if (error) {
-                        reject(error);
-                    }
-                    else {
-                        resolve(varbinds[0].value.toString());
-                    }
-                });
+    async getSnmp(oid) {
+        return new Promise((resolve, reject) => {
+            this.session.get([oid], (error, varbinds) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(varbinds[0].value.toString());
+                }
             });
         });
     }
-    sendSnmp(oid, value) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const varbind = {
-                oid,
-                value,
-                type: snmp.ObjectType.Integer,
-            };
-            return new Promise((resolve, reject) => {
-                this.session.set([varbind], (error, varbinds) => {
-                    if (error) {
-                        reject(error);
-                    }
-                    else {
-                        resolve(varbinds[0].value.toString());
-                    }
-                });
+    async sendSnmp(oid, value) {
+        const varbind = {
+            oid,
+            value,
+            type: snmp.ObjectType.Integer,
+        };
+        return new Promise((resolve, reject) => {
+            this.session.set([varbind], (error, varbinds) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(varbinds[0].value.toString());
+                }
             });
         });
     }

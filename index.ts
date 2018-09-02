@@ -21,6 +21,8 @@ enum InputSource {
 	HDMI3 = 17,
 }
 
+const ON_STATES = [PowerState.On, PowerState.Warming];
+
 let Service, Characteristic;
 
 class Projector {
@@ -55,9 +57,9 @@ class Projector {
 
 	async getPowerState(next) {
 		try {
-			const state = await this.getSnmp(OID.PowerState);
-			this.log('Power State', state);
-			next(null, state == PowerState.On ? true : false);
+			const powerState = await this.getSnmp(OID.PowerState);
+			this.log('Power State', powerState);
+			next(null, ON_STATES.includes(Number(powerState)) ? true : false);
 		} catch (error) {
 			this.log('SNMP Get Error', error);
 			next(error);
@@ -65,10 +67,11 @@ class Projector {
 	}
 
 	async setPowerState(on: boolean, next) {
+		const nextPowerState = on ? PowerState.On : PowerState.Off;
 		try {
-			const state = await this.sendSnmp(OID.PowerState, on ? PowerState.On : PowerState.Off)
-			this.log('Set Power State', state);
-			next(null, state == PowerState.On ? true : false);
+			const powerState = await this.sendSnmp(OID.PowerState, nextPowerState)
+			this.log('Set Power State', nextPowerState, 'current:', powerState);
+			next();
 		} catch (error) {
 			this.log('SNMP Set Error', error);
 			next(error);
