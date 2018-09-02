@@ -6,13 +6,17 @@
   "author": "Nick Small",
   "license": "MIT",
   "keywords": [
-    "homebridge-plugin"
+    "homebridge",
+    "homebridge-plugin",
+    "projector"
   ],
   "engines": {
     "homebridge": ">=0.2.0"
   },
   "dependencies": {
-    "net-snmp": "^1.2.4",
+    "net-snmp": "^1.2.4"
+  },
+  "devDependencies": {
     "typescript": "^2.9.2"
   },
   "scripts": {
