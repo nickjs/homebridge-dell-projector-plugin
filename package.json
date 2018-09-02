@@ -1,6 +1,6 @@
 {
   "name": "homebridge-dell-projector-plugin",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Homebridge plugin for Dell Projector S718QL",
   "main": "index.js",
   "author": "Nick Small",
