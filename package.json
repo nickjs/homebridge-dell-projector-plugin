@@ -21,7 +21,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "install": "yarn run build && yarn global add",
-    "run": "yarn run install && homebridge"
+    "local-install": "yarn run build && yarn global add",
+    "run": "yarn run local-install && homebridge"
   }
 }
